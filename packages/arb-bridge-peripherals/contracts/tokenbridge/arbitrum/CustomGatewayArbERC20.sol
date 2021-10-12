@@ -33,12 +33,17 @@ contract CustomGatewayArbERC20 is IArbToken, L2GatewayToken, Cloneable {
      * @param _l1Address L1 address of ERC20
      * @param _data encoded symbol/name/decimal data for initial deploy
      */
-    function bridgeInit(address _l2Gateway, address _l1Address, string memory _name, string _symbol, uint8 _decimals) public virtual {
+    function bridgeInit(address _l2Gateway, address _l1Address, bytes memory _data) public virtual {
+        (bytes memory name_, bytes memory symbol_, bytes memory decimals_) = abi.decode(
+            _data,
+            (bytes, bytes, bytes)
+        );
         // what if decode reverts? shouldn't as this is encoded by L1 contract
+
         L2GatewayToken._initialize(
-            _name,
-            _symbol,
-            _decimals,
+            BytesParserWithDefault.toString(name_, ""),
+            BytesParserWithDefault.toString(symbol_, ""),
+            BytesParserWithDefault.toUint8(decimals_, 18),
             _l2Gateway, // _l2Gateway,
             _l1Address // _l1Counterpart
         );
